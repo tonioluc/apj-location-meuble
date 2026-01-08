@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import utils.ApiResponse;
 
 import bean.CGenUtil;
 import bean.TypeObjet;
-import mg.cnaps.configuration.Configuration;
 import user.UserEJB;
 import user.UserEJBClient;
 import historique.MapUtilisateur;
@@ -74,7 +74,6 @@ public class LoginApiServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
         PrintWriter out = response.getWriter();
-        Map<String, Object> jsonResponse = new HashMap<>();
 
         try {
             // Récupérer les paramètres (supporte form-data et JSON body)
@@ -112,20 +111,14 @@ public class LoginApiServlet extends HttpServlet {
 
             // Validation des champs obligatoires
             if (identifiant == null || identifiant.trim().isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Le champ 'identifiant' est obligatoire");
-                jsonResponse.put("data", null);
-                out.print(gson.toJson(jsonResponse));
+                ApiResponse<Void> res = ApiResponse.error("Le champ 'identifiant' est obligatoire");
+                res.write(response, HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
 
             if (passe == null || passe.trim().isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Le champ 'passe' est obligatoire");
-                jsonResponse.put("data", null);
-                out.print(gson.toJson(jsonResponse));
+                ApiResponse<Void> res = ApiResponse.error("Le champ 'passe' est obligatoire");
+                res.write(response, HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
 
@@ -135,7 +128,7 @@ public class LoginApiServlet extends HttpServlet {
 
             // Récupérer les informations utilisateur
             MapUtilisateur utilisateur = userEJB.getUser();
-            Configuration[] configurations = userEJB.findConfiguration();
+            // Configuration[] configurations = userEJB.findConfiguration(); // non utilisé ici
             
             // Récupérer la direction
             String direction = "%";
@@ -160,23 +153,16 @@ public class LoginApiServlet extends HttpServlet {
             userData.put("adresse", utilisateur.getAdruser());
 
             // Réponse succès
-            response.setStatus(HttpServletResponse.SC_OK);
-            jsonResponse.put("success", true);
-            jsonResponse.put("message", "Connexion réussie");
-            jsonResponse.put("data", userData);
+            ApiResponse<Map<String, Object>> res = ApiResponse.success("Connexion réussie", userData);
+            res.write(response, HttpServletResponse.SC_OK);
 
             LOGGER.info("Login réussi pour l'utilisateur: " + identifiant);
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erreur lors du login", e);
-            
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            jsonResponse.put("success", false);
-            jsonResponse.put("message", e.getMessage() != null ? e.getMessage() : "Erreur d'authentification");
-            jsonResponse.put("data", null);
+            ApiResponse<Void> res = ApiResponse.error(e.getMessage() != null ? e.getMessage() : "Erreur d'authentification");
+            res.write(response, HttpServletResponse.SC_UNAUTHORIZED);
         }
-
-        out.print(gson.toJson(jsonResponse));
         out.flush();
     }
 
@@ -188,14 +174,10 @@ public class LoginApiServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Access-Control-Allow-Origin", "*");
 
-        Map<String, Object> jsonResponse = new HashMap<>();
-        jsonResponse.put("success", false);
-        jsonResponse.put("message", "Utilisez la méthode POST pour vous authentifier");
-        jsonResponse.put("data", null);
-        jsonResponse.put("usage", getUsageInfo());
-
-        response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-        response.getWriter().print(gson.toJson(jsonResponse));
+        Map<String, Object> body = new HashMap<>();
+        body.put("usage", getUsageInfo());
+        ApiResponse<Map<String, Object>> res = ApiResponse.success("Utilisez la méthode POST pour vous authentifier", body);
+        res.write(response, HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     @Override
