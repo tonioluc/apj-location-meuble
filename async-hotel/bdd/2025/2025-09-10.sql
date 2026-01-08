@@ -1,0 +1,1 @@
+update as_ingredients set pv = 1,IDMODELE ='INGCAUT001' where id='INGCAUT001';

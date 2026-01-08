@@ -1,0 +1,9 @@
+ALTER TABLE RESERVATION ADD
+responsable VARCHAR(100);
+
+
+CREATE TABLE CLEREFERENCE (
+    id VARCHAR(100),
+    nomtab VARCHAR(100),
+    nextval NUMBER
+);

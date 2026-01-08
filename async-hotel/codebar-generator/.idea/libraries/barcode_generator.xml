@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="barcode-generator">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/barcode-generator.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

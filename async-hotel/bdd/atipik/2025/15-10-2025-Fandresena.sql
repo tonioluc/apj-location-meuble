@@ -1,0 +1,71 @@
+INSERT INTO MENUDYNAMIQUE
+(ID, LIBELLE, ICONE, RANG, NIVEAU, ID_PERE)
+VALUES('MNDN0000000061', 'Facture', 'fa fa-book', 1, 2, 'MNDN000000001');
+
+UPDATE MENUDYNAMIQUE
+SET NIVEAU=3, ID_PERE='MNDN0000000061'
+WHERE ID='MNDN000000006';
+
+UPDATE MENUDYNAMIQUE
+SET NIVEAU=3, ID_PERE='MNDN0000000061'
+WHERE ID='MNDN000000007';
+
+UPDATE MENUDYNAMIQUE
+SET RANG=3
+WHERE ID='MENUDYN14071007';
+
+UPDATE MENUDYNAMIQUE
+SET RANG=4
+WHERE ID='MNDNAN001';
+
+UPDATE MENUDYNAMIQUE
+    SET RANG=2
+WHERE ID='MNDN000000010';
+
+UPDATE AS_INGREDIENTS
+SET UNITE='UNT00001' ;
+
+UPDATE PROFORMA_DETAILS
+SET UNITE='UNT00001' ;
+
+CREATE OR REPLACE VIEW RESERVATION_LIB_MIN_DATY AS
+SELECT
+    r.id,
+    r.idClient,
+    c.NOM AS idclientlib,
+    NVL(
+            (SELECT MIN(d2.daty)
+             FROM reservationdetails d2
+             WHERE d2.idmere = r.id),
+            r.daty
+    ) AS daty,  -- <-- ici on prend la date minimale ou la date originale s'il n'y en a pas
+    r.remarque,
+    r.etat,
+    CASE
+        WHEN r.ETAT = 0 THEN 'ANNULE(E)'
+        WHEN r.ETAT = 1 THEN 'CREE(E)'
+        WHEN r.ETAT = 11 THEN 'VISE(E)'
+        END AS etatlib,
+    rm.montant,
+    rm.montantremise,
+    rm.montanttotal,
+    rm.MONTANTTVA,
+    rm.MONTANTTTC,
+    NVL(mvt.CREDIT, 0) AS paye,
+    CAST(rm.MONTANTTTC - NVL(mvt.CREDIT, 0) AS NUMBER(20, 2)) AS resteAPayer,
+    0 AS revient,
+    0 AS marge,
+    r.IDORIGINE,
+    r.LIEULOCATION,
+    m.val AS magasin,
+    TO_CHAR(r.daty + s.nbJour, 'DD/MM/YYYY') AS datePrevisionRetour
+FROM
+    RESERVATION r
+        LEFT JOIN CLIENT c ON c.id = r.idClient
+        LEFT JOIN RESERVATIONMONTANT2 rm ON rm.id = r.id
+        LEFT JOIN MOUVEMENTCAISSEGROUPERESA mvt ON mvt.IDORIGINE = r.ID
+        LEFT JOIN magasin m ON m.id = r.IDMAGASIN
+        LEFT JOIN sommeNombreJourReservation s ON r.id = s.idMere;
+
+CREATE OR REPLACE VIEW RESERVATIONCALENDRIER_MIN_DATY AS
+SELECT r."ID",r."IDCLIENT",r."IDCLIENTLIB",r."DATY",r."REMARQUE",r."ETAT",r."ETATLIB",r."MONTANT",r."MONTANTTOTAL",r."MONTANTREMISE",r."MONTANTTTC",r."MONTANTTVA",r."PAYE",r."RESTEAPAYER",r."REVIENT",r."MARGE",r."IDORIGINE",r."LIEULOCATION",r."MAGASIN" FROM RESERVATION_LIB_MIN_DATY r WHERE ETAT>=11;

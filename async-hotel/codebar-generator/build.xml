@@ -1,0 +1,64 @@
+<project name="barcode-generator" default="run" basedir=".">
+    <property name="output.dir" value="./out" />
+    <property name="binary.dir" value="./bin" />
+    <property name="lib.dir" value="${basedir}/../build-file/lib" />
+    <property name="jar.name" value="barcode-generator" />
+    <!--Mila soloina path anle projet -->
+    <property name="image.deploy.dir" value="D:/BICI/projet/async-hotel/asynclocation-war/web/assets/" />
+    <property name="image.output" value="barcode-image/" />
+
+    <!-- Nettoyer les dossiers de build -->
+    <target name="clean">
+        <delete dir="${binary.dir}" />
+        <delete dir="${output.dir}" />
+    </target>
+
+    <!-- Copier les fichiers .properties -->
+    <target name="copy-properties" depends="clean">
+        <copy todir="${binary.dir}">
+            <fileset dir="${basedir}">
+                <include name="**/*.properties" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Compiler le code -->
+    <target name="compile" depends="copy-properties">
+        <javac srcdir="${basedir}" destdir="${binary.dir}" includeantruntime="false">
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib.dir}/../ear">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Créer le JAR principal (sans fusionner les bibliothèques) -->
+    <target name="package" depends="compile">
+        <mkdir dir="${binary.dir}/META-INF" />
+        <touch file="${binary.dir}/META-INF/MANIFEST.MF" />
+        <manifest file="${binary.dir}/META-INF/MANIFEST.MF">
+            <attribute name="Main-Class" value="Main" />
+        </manifest>
+
+        <jar destfile="${output.dir}/${jar.name}.jar" basedir="${binary.dir}" 
+             manifest="${binary.dir}/META-INF/MANIFEST.MF" />
+    </target>
+
+    <!-- Exécuter le JAR avec toutes les dépendances dans le classpath -->
+    <target name="run" depends="package">
+        <java fork="true" classname="Main">
+            <classpath>
+                <pathelement path="${output.dir}/${jar.name}.jar"/>
+                <fileset dir="${lib.dir}" includes="**/*.jar"/>
+                <fileset dir="${lib.dir}/../ear" includes="**/*.jar"/>
+            </classpath>
+            <arg line="${image.deploy.dir}" />
+            <arg line="${image.output}" />
+        </java>
+    </target>
+
+</project>
