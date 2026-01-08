@@ -29,7 +29,7 @@
         mere.setNomTable("PROFORMA_INSERT");
         ProformaDetailsLib fille = new ProformaDetailsLib();
         fille.setNomTable("PROFORMADETAILS_CPLIMAGE");
-        int nombreLigne = 30;
+        int nombreLigne = 10;
         pi = new PageInsertMultiple(mere,fille,request, nombreLigne,u);
         Proforma prerempli = null;
         pi.setLien((String) session.getValue("lien"));
