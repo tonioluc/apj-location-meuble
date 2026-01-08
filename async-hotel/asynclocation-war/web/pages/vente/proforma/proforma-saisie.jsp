@@ -334,6 +334,13 @@
           document.querySelectorAll('input[name^="pu_"]').forEach(p => {
             p.value = toRaw(p.value);
           });
+
+          document.querySelectorAll('input[name^="nombre_"], input[name^="qte_"], input[name^="etat"], input[name^=estPrevu]').forEach(field => {
+            if(field.value && field.value.includes('.') || field.value.includes(','))
+            {
+                field.value = Math.floor(parseFloat(toRaw(field.value)));
+            }
+          });
         });
       }
 
