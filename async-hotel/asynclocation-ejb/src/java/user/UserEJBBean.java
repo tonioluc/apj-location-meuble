@@ -1275,9 +1275,15 @@ public class UserEJBBean implements UserEJB {
         try {
 
             c = new UtilDB().GetConn();
+            if (c == null) {
+                throw new Exception("Erreur établissement connexion BD: Oracle indisponible ou non prêt");
+            }
             c.setAutoCommit(false);
 
             u = testeValide(user, pass, interim, service,c);
+            if (u == null) {
+                throw new Exception("Échec de connexion: identifiant/mot de passe invalides ou base de données indisponible");
+            }
             UtilisateurUtil crt = new UtilisateurUtil(c);
             System.out.println("Apres new UtilisateurUtil ");
             uVue = crt.testeValide("utilisateurVue", user, pass,c);
