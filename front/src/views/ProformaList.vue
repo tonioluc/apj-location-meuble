@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { listProformas } from '../api/proforma'
+import { formatAmount } from '../utils/format'
 
 const loading = ref(false)
 const error = ref('')
@@ -96,7 +97,7 @@ onMounted(() => {
             </td>
             <td>{{ p.client }}</td>
             <td>{{ p.date }}</td>
-            <td>{{ p.montantTotal }}</td>
+            <td>{{ formatAmount(p.montantTotal) }}</td>
             <td>{{ p.designation }}</td>
             <td>{{ p.etatLib }}</td>
           </tr>

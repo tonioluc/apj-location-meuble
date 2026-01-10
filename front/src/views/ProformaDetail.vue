@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProforma } from '../api/proforma'
+import { formatAmount } from '../utils/format'
 
 const route = useRoute()
 const id = route.params.id
@@ -43,7 +44,7 @@ onMounted(async () => {
         <div class="row g-3">
           <div class="col-md-4"><strong>Client: </strong>{{ item.client }}</div>
           <div class="col-md-4"><strong>Date: </strong>{{ item.date }}</div>
-          <div class="col-md-4"><strong>Montant total: </strong>{{ item.montantTotal }}</div>
+          <div class="col-md-4"><strong>Montant total: </strong>{{ formatAmount(item.montantTotal) }}</div>
           <div class="col-md-12"><strong>Désignation: </strong>{{ item.designation }}</div>
           <div class="col-md-12"><strong>Description: </strong>{{ item.description }}</div>
           <div class="col-md-3"><strong>État: </strong>{{ item.etatLib }}</div>
@@ -73,7 +74,7 @@ onMounted(async () => {
                 <td>{{ d.id }}</td>
                 <td>{{ d.designation }}</td>
                 <td>{{ d.quantite }}</td>
-                <td>{{ d.prixUnitaire }}</td>
+                <td>{{ formatAmount(d.prixUnitaire) }}</td>
                 <td>{{ d.remise }}</td>
                 <td>{{ d.tva }}</td>
               </tr>
