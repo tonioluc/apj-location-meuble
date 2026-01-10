@@ -9,6 +9,13 @@ const items = ref([])
 const dateDebut = ref('')
 const dateFin = ref('')
 
+function formatDate(d) {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 async function fetchList() {
   loading.value = true
   error.value = ''
@@ -29,7 +36,14 @@ async function fetchList() {
   }
 }
 
-onMounted(fetchList)
+onMounted(() => {
+  const today = new Date()
+  const fifteenDaysAgo = new Date(today)
+  fifteenDaysAgo.setDate(today.getDate() - 15)
+  dateFin.value = formatDate(today)
+  dateDebut.value = formatDate(fifteenDaysAgo)
+  fetchList()
+})
 </script>
 
 <template>
@@ -77,7 +91,9 @@ onMounted(fetchList)
         </thead>
         <tbody>
           <tr v-for="p in items" :key="p.id">
-            <td>{{ p.id }}</td>
+            <td>
+              <RouterLink :to="`/proformas/${p.id}`">{{ p.id }}</RouterLink>
+            </td>
             <td>{{ p.client }}</td>
             <td>{{ p.date }}</td>
             <td>{{ p.montantTotal }}</td>

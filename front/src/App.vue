@@ -3,9 +3,9 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="d-flex">
+  <div class="d-flex" style="height: 100vh;">
     <!-- Sidebar -->
-    <div class="flex-shrink-0 p-3 bg-light border-end" style="width: 260px; min-height: 100vh;">
+    <div class="flex-shrink-0 p-3 bg-light border-end" style="width: 260px; height: 100vh; overflow-y: auto;">
       <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none" href="#">
         <span class="fs-5">APJ Proforma</span>
       </a>
@@ -25,11 +25,11 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
 
     <!-- Content -->
-    <div class="flex-grow-1">
-      <nav class="navbar navbar-light bg-white border-bottom px-3">
+    <div class="flex-grow-1 d-flex flex-column" style="height: 100vh;">
+      <nav class="navbar navbar-light bg-white border-bottom px-3 flex-shrink-0">
         <span class="navbar-brand mb-0 h1">Gestion Proforma</span>
       </nav>
-      <main class="p-3">
+      <main class="p-3 flex-grow-1" style="overflow-y: auto;">
         <RouterView />
       </main>
     </div>
