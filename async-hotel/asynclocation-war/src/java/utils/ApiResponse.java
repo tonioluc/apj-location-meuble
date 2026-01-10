@@ -6,15 +6,13 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Utilitaire standard pour formater les réponses JSON des Web Services.
- *
- * Exemple de structure:
+ * Réponse JSON standardisée pour les APIs.
+ * Format souhaité:
  * {
  *   "success": true,
- *   "message": "...",
- *   "data": { ... },
- *   "code": "OPTIONAL",
- *   "timestamp": 1699999999999
+ *   "data": {},
+ *   "message": "Opération réussie",
+ *   "errors": null
  * }
  */
 public class ApiResponse<T> {
@@ -22,35 +20,33 @@ public class ApiResponse<T> {
     private static final Gson GSON = new GsonBuilder().create();
 
     private final boolean success;
-    private final String message;
     private final T data;
-    private final String code; // optionnel (ex: code d'erreur/metier)
-    private final long timestamp;
+    private final String message;
+    private final Object errors; // null ou Map/List détaillant les erreurs
 
-    private ApiResponse(boolean success, String message, T data, String code) {
+    private ApiResponse(boolean success, T data, String message, Object errors) {
         this.success = success;
-        this.message = message;
         this.data = data;
-        this.code = code;
-        this.timestamp = System.currentTimeMillis();
+        this.message = message;
+        this.errors = errors;
     }
 
     // Factories succès
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<T>(true, "OK", data, null);
+        return new ApiResponse<T>(true, data, "Opération réussie", null);
     }
 
     public static <T> ApiResponse<T> success(String message, T data) {
-        return new ApiResponse<T>(true, message, data, null);
+        return new ApiResponse<T>(true, data, message, null);
     }
 
     // Factories erreur
     public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<T>(false, message, null, null);
+        return new ApiResponse<T>(false, null, message, null);
     }
 
-    public static <T> ApiResponse<T> error(String code, String message) {
-        return new ApiResponse<T>(false, message, null, code);
+    public static <T> ApiResponse<T> error(String message, Object errors) {
+        return new ApiResponse<T>(false, null, message, errors);
     }
 
     // Ecriture pratique dans la réponse HTTP
@@ -61,10 +57,9 @@ public class ApiResponse<T> {
         resp.getWriter().print(GSON.toJson(this));
     }
 
-    // Getters nécessaires pour la sérialisation/lecture éventuelle
+    // Getters
     public boolean isSuccess() { return success; }
-    public String getMessage() { return message; }
     public T getData() { return data; }
-    public String getCode() { return code; }
-    public long getTimestamp() { return timestamp; }
+    public String getMessage() { return message; }
+    public Object getErrors() { return errors; }
 }

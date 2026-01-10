@@ -1,4 +1,4 @@
-package servlet;
+package servlet.api;
 
 import bean.CGenUtil;
 import com.google.gson.Gson;
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import utils.ApiResponse;
 
 /**
  * Servlet REST pour la gestion des Proformas.
@@ -336,7 +337,10 @@ public class ProformaServlet extends HttpServlet {
         // Delete using domain API
         proformas[0].deleteToTable(c);
 
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("message", "Proforma supprimé avec succès");
+        sendJson(response, result);
     }
 
     private void handleAddDetail(HttpServletRequest request, HttpServletResponse response, Connection c)
@@ -416,18 +420,13 @@ public class ProformaServlet extends HttpServlet {
     }
 
     private void sendJson(HttpServletResponse response, Object data) throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(gson.toJson(data));
+        ApiResponse<Object> api = ApiResponse.success("Opération réussie", data);
+        api.write(response, HttpServletResponse.SC_OK);
     }
 
     private void sendError(HttpServletResponse response, int status, String message) throws IOException {
-        response.setStatus(status);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        Map<String, String> error = new HashMap<>();
-        error.put("error", message);
-        response.getWriter().write(gson.toJson(error));
+        ApiResponse<Object> api = ApiResponse.error(message);
+        api.write(response, status);
     }
 
     private String readBody(HttpServletRequest request) throws IOException {
