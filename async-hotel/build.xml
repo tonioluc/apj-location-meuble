@@ -85,7 +85,7 @@
 	
     <target name="compile" depends="init">
         <echo> compilation </echo>	
-        <javac srcdir="../asynclocation-ejb/src/java" destdir="${build-asynclocation-ejb_jar}" nowarn="true" debug="on" deprecation="off" classpathref="classpath" includeantruntime="false" encoding="iso-8859-1">
+        <javac srcdir="../asynclocation-ejb/src/java" destdir="${build-asynclocation-ejb_jar}" nowarn="true" debug="on" deprecation="off" classpathref="classpath" includeantruntime="false" encoding="UTF-8">
         </javac>
         <echo> compilation done </echo>	
     </target>
@@ -100,7 +100,7 @@
 
     <target name="compileWar" depends="buildEjbJar">
         <echo> compilation </echo>
-        <javac srcdir="../asynclocation-war/src/java" destdir="${build-asynclocation-war_war}/WEB-INF/classes/" nowarn="true" debug="on" deprecation="off" classpathref="classpath" includeantruntime="false" encoding="iso-8859-1">
+        <javac srcdir="../asynclocation-war/src/java" destdir="${build-asynclocation-war_war}/WEB-INF/classes/" nowarn="true" debug="on" deprecation="off" classpathref="classpath" includeantruntime="false" encoding="UTF-8">
             <classpath>
                 <pathelement location="${buildEar.dir}/${asynclocation-jarname}" />
             </classpath>

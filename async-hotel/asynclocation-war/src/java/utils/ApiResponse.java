@@ -17,7 +17,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class ApiResponse<T> {
 
-    private static final Gson GSON = new GsonBuilder().create();
+        private static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create();
 
     private final boolean success;
     private final T data;
@@ -52,8 +54,8 @@ public class ApiResponse<T> {
     // Ecriture pratique dans la réponse HTTP
     public void write(HttpServletResponse resp, int httpStatus) throws IOException {
         resp.setStatus(httpStatus);
-        resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json; charset=UTF-8");
         resp.getWriter().print(GSON.toJson(this));
     }
 
