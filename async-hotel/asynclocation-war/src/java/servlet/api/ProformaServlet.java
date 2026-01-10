@@ -29,6 +29,7 @@ import utils.ApiResponse;
  * Endpoints:
  * GET /api/proforma -> Liste tous les proformas
  * GET /api/proforma?id=XXX -> Récupère un proforma par ID
+ * GET /api/proforma?dateDebut=AAAA-MM-JJ&dateFin=AAAA-MM-JJ' -> Liste avec filtre de dates
  * POST /api/proforma -> Crée un nouveau proforma
  * PUT /api/proforma?id=XXX -> Met à jour un proforma
  * DELETE /api/proforma?id=XXX -> Supprime un proforma
@@ -77,8 +78,8 @@ public class ProformaServlet extends HttpServlet {
             if (id != null && !id.isEmpty()) {
                 handleGetById(id, response, c);
             } else {
-                // GET /api/proforma -> Liste de tous les proformas
-                handleGetAll(response, c);
+                // GET /api/proforma -> Liste (avec éventuel filtre de dates)
+                handleListWithDateFilter(request, response, c);
             }
         } catch (Exception e) {
             sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
@@ -162,6 +163,58 @@ public class ProformaServlet extends HttpServlet {
     }
 
     // ==================== Handlers ====================
+
+    /**
+     * Liste tous les proformas avec option de filtre par dates.
+     * Paramètres: dateDebut=yyyy-MM-dd (optionnel), dateFin=yyyy-MM-dd (optionnel)
+     */
+    private void handleListWithDateFilter(HttpServletRequest request, HttpServletResponse response, Connection c) throws Exception {
+        String dateDebutStr = request.getParameter("dateDebut");
+        String dateFinStr = request.getParameter("dateFin");
+
+        java.sql.Date dateDebut = null;
+        java.sql.Date dateFin = null;
+
+        // Validation format yyyy-MM-dd
+        try {
+            if (dateDebutStr != null && !dateDebutStr.isEmpty()) {
+                dateDebut = java.sql.Date.valueOf(dateDebutStr);
+            }
+            if (dateFinStr != null && !dateFinStr.isEmpty()) {
+                dateFin = java.sql.Date.valueOf(dateFinStr);
+            }
+        } catch (IllegalArgumentException iae) {
+            sendError(response, HttpServletResponse.SC_BAD_REQUEST, "Format de date invalide (attendu yyyy-MM-dd)");
+            return;
+        }
+
+        String clause = "";
+        if (dateDebut != null && dateFin != null) {
+            clause = " AND daty BETWEEN '" + dateDebut.toString() + "' AND '" + dateFin.toString() + "'";
+        } else if (dateDebut != null) {
+            clause = " AND daty >= '" + dateDebut.toString() + "'";
+        } else if (dateFin != null) {
+            clause = " AND daty <= '" + dateFin.toString() + "'";
+        }
+        clause += " ORDER BY daty DESC";
+
+        ProformaLib[] proformas = (ProformaLib[]) CGenUtil.rechercher(
+                new ProformaLib(), null, null, c, clause);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (ProformaLib p : proformas) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", p.getId());
+            map.put("client", p.getIdClientLib());
+            map.put("date", p.getDaty() != null ? p.getDaty().toString() : null);
+            map.put("montantTotal", p.getMontantTtc());
+            map.put("designation", p.getDesignation());
+            map.put("etat", p.getEtat());
+            map.put("etatLib", p.getEtatLib());
+            result.add(map);
+        }
+        sendJson(response, result);
+    }
 
     private void handleGetAll(HttpServletResponse response, Connection c) throws Exception {
         ProformaLib[] proformas = (ProformaLib[]) CGenUtil.rechercher(
