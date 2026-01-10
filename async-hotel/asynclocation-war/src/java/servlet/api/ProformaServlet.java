@@ -190,11 +190,11 @@ public class ProformaServlet extends HttpServlet {
 
         String clause = "";
         if (dateDebut != null && dateFin != null) {
-            clause = " AND daty BETWEEN '" + dateDebut.toString() + "' AND '" + dateFin.toString() + "'";
+            clause = " AND TRUNC(daty) BETWEEN TO_DATE('" + dateDebut.toString() + "','YYYY-MM-DD') AND TO_DATE('" + dateFin.toString() + "','YYYY-MM-DD')";
         } else if (dateDebut != null) {
-            clause = " AND daty >= '" + dateDebut.toString() + "'";
+            clause = " AND TRUNC(daty) >= TO_DATE('" + dateDebut.toString() + "','YYYY-MM-DD')";
         } else if (dateFin != null) {
-            clause = " AND daty <= '" + dateFin.toString() + "'";
+            clause = " AND TRUNC(daty) <= TO_DATE('" + dateFin.toString() + "','YYYY-MM-DD')";
         }
         clause += " ORDER BY daty DESC";
 
